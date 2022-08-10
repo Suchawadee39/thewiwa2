@@ -1,80 +1,6 @@
-const dataList = [
-  {
-    id: 1,
-    table: "A01",
-    time: "18:15",
-    status: "serving",
-    img: "./images/icon/serving.png",
-  },
-  {
-    id: 2,
-    table: "A02",
-    time: "18:17",
-    status: "in the kitchen",
-    img: "./images/icon/serving.png",
-  },
-  {
-    id: 3,
-    table: "A03",
-    time: "18:35",
-    status: "in the kitchen",
-    img: "./images/icon/In-the-kitchen.png",
-  },
-  {
-    id: 4,
-    table: "A04",
-    time: "19:40",
-    status: "in the kitchen",
-    img: "./images/icon/In-the-kitchen.png",
-  },
-  {
-    id: 5,
-    table: "A05",
-    time: "19:55",
-    status: "Order placed",
-    img: "./images/icon/order-placed.png",
-  },
-];
+const perChunk = 5;
 
-const dataList_2 = [
-  {
-    id: 6,
-    table: "A06",
-    time: "19:35",
-    status: "Order placed",
-    img: "./images/icon/order-placed.png",
-  },
-  {
-    id: 7,
-    table: "A07",
-    time: "19:40",
-    status: "Order placed",
-    img: "./images/icon/order-placed.png",
-  },
-  {
-    id: 8,
-    table: "A08",
-    time: "19:40",
-    status: "Order placed",
-    img: "./images/icon/order-placed.png",
-  },
-  {
-    id: 9,
-    table: "A09",
-    time: "19:55",
-    status: "Order placed",
-    img: "./images/icon/order-placed.png",
-  },
-  {
-    id: 10,
-    table: "A10",
-    time: "20:00",
-    status: "Order placed",
-    img: "./images/icon/order-placed.png",
-  },
-];
-
-const slideList = [
+let slideList = [
   {
     id: 1,
     imgf: "./images/pic/example1.jpg",
@@ -116,6 +42,11 @@ const slideList = [
     menuname: "avocado toast",
   },
 ];
+
+let dataList = [];
+let getSlideList = [];
+
+let menuData = [];
 
 let monthNames = [
   "Jan.",
@@ -132,74 +63,107 @@ let monthNames = [
   "Dec.",
 ];
 
-let textMessage =
-  "หากรออาหารเกิน 15 นาที กรุณาลุกขึ้นรำตะรีกีปัด เป็นทำนองสามช่า เพื่อเป็นการแจ้งให้พนักงานทราบ";
+let textMessage = null;
 
 let showData = 2;
 
-function showStatus() {
-  if (showData == 1) {
-    showData = 2;
-  } else {
-    showData = 1;
-  }
+let page = parseInt(getPage());
+if (page === null || page === undefined || isNaN(page)) {
+  window.location.href = "index.html?page=1";
+}
 
+function showStatus() {
   let x = document.getElementById("show-status");
   x.innerHTML = "";
-  const realdata = showData == 1 ? dataList : dataList_2;
-  for (let index = 0; index < realdata.length; index++) {
-    const element = realdata[index];
-    x.innerHTML += `<div class="row ">
-    <div class="col-5">
-      <div class="status-table">
-        <div class="name-status">โต๊ะ (Table)</div>
-        <div class="main-status">${element.table}</div>
-      </div>
-    </div>
-    <div class="col-5 ">
-      <div class="status-time">
-        <div class="name-status">เสิร์ฟ (Serving time)</div>
-        <div class="main-status">${element.time}</div>
-      </div>
-    </div>
-    <div class="col-2">
-        <img class="status-logo" src="${element.img}">
-    </div>
-  </div>`;
+
+  let chuckTable = tableToChunk(dataList);
+
+  if (page > chuckTable.length) {
+    window.location.href = "index.html?page=1";
   }
+
+  let realData = chuckTable[page - 1];
+
+  realData.forEach(function (element, index) {
+    const tableName = element.name;
+
+    const orders = element.orders;
+
+    for (let index = 0; index < orders.length; index++) {
+      const order = orders[index];
+
+      const testTime = order.estimate_end_time;
+
+      let imageStatus = null;
+      if (order.status == "Waiting") {
+        imageStatus = "/images/Icon/in-the-kitchen.png";
+      }
+      if (order.status == "Order Place") {
+        imageStatus = "/images/Icon/order-placed.png";
+      }
+      if (order.status == "Serving") {
+        imageStatus = "/images/Icon/serving.png";
+      }
+
+      x.innerHTML += `<div class="row ">
+      <div class="col-5">
+        <div class="status-table">
+          <div class="name-status">โต๊ะ (Table)</div>
+          <div class="main-status">${tableName}</div>
+        </div>
+      </div>
+      <div class="col-5 ">
+        <div class="status-time">
+          <div class="name-status">เสิร์ฟ (Serving time)</div>
+          <div class="main-status">${testTime}</div>
+        </div>
+      </div>
+      <div class="col-2">
+          <img class="status-logo" src="${imageStatus}">
+      </div>
+    </div>`;
+    }
+  });
 }
-showStatus();
-setInterval(() => {
-  showStatus();
-}, 60000);
+
+function tableToChunk(arr) {
+  return arr.reduce((all, one, i) => {
+    const ch = Math.floor(i / perChunk);
+    all[ch] = [].concat(all[ch] || [], one);
+    return all;
+  }, []);
+}
 
 function showSlider() {
   let x = document.getElementById("show-slide");
-  for (let index = 0; index < slideList.length; index++) {
-    const element = slideList[index];
+
+  for (let index = 0; index < getSlideList.length; index++) {
+    const element = getSlideList[index];
+
+    const image = element.image_path;
+    const titleimg = element.description;
+
     if (index === 0) {
       x.innerHTML += `<div class="carousel-item active" data-bs-interval="30000">
-      <img class="img-slider" src="${element.imgf}">
+      <img class="img-slider" src="${image}">
       <div class="wrapper-content">
         <div class="carousel-caption d-none d-md-block">
-        <div class="menu-name">${element.menuname.toUpperCase()}</div>
+        <div class="menu-name">${titleimg}</div>
         </div>
       </div>
     </div>`;
     } else {
       x.innerHTML += `<div class="carousel-item" data-bs-interval="30000">
-      <img class="img-slider" src="${element.imgf}">
+      <img class="img-slider" src="${image}">
       <div class="wrapper-content">
         <div class="carousel-caption d-none d-md-block">
-        <div class="menu-name">${element.menuname.toUpperCase()}</div>
+        <div class="menu-name">${titleimg.toUpperCase()}</div>
         </div>
       </div>
     </div>`;
     }
   }
 }
-
-showSlider();
 
 function showClockRealTime() {
   let d = new Date();
@@ -221,4 +185,39 @@ function addZero(num) {
 function showTextMessage() {
   document.getElementById("text-showmessage").innerHTML = textMessage;
 }
-showTextMessage();
+
+async function getData() {
+  const response = await fetch(
+    "http://13.250.6.185/fb-system/public/api/guest/restaurants",
+    {
+      method: "GET",
+    }
+  );
+  const result = await response.json();
+
+  const res1 = result.data[0];
+
+  dataList = res1.room_or_tables;
+
+  textMessage = res1.remark;
+
+  getSlideList = res1.slides;
+
+  showStatus();
+  showSlider();
+  showTextMessage();
+}
+
+function getPage() {
+  const params = new Proxy(new URLSearchParams(window.location.search), {
+    get: (searchParams, prop) => searchParams.get(prop),
+  });
+
+  return params.page;
+}
+
+getData();
+
+setInterval(() => {
+  window.location.href = "index.html?page=" + (page + 1);
+}, 1000 * 60);
