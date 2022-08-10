@@ -1,48 +1,5 @@
 const perChunk = 5;
 
-let slideList = [
-  {
-    id: 1,
-    imgf: "./images/pic/example1.jpg",
-    menuname: "steak combo set",
-  },
-  {
-    id: 2,
-    imgf: "./images/pic/example3.jpg",
-    menuname: "seafood combo set",
-  },
-  {
-    id: 3,
-    imgf: "./images/pic/example4.jpg",
-    menuname: "salmon salad",
-  },
-  {
-    id: 4,
-    imgf: "./images/pic/example6.jpg",
-    menuname: "avocado toast",
-  },
-  {
-    id: 5,
-    imgf: "./images/pic/example1.jpg",
-    menuname: "steak combo set",
-  },
-  {
-    id: 6,
-    imgf: "./images/pic/example3.jpg",
-    menuname: "seafood combo set",
-  },
-  {
-    id: 7,
-    imgf: "./images/pic/example4.jpg",
-    menuname: "salmon salad",
-  },
-  {
-    id: 8,
-    imgf: "./images/pic/example6.jpg",
-    menuname: "avocado toast",
-  },
-];
-
 let dataList = [];
 let getSlideList = [];
 
@@ -90,18 +47,18 @@ function showStatus() {
     const orders = element.orders;
 
     for (let index = 0; index < orders.length; index++) {
-      const order = orders[index];
-
-      const testTime = order.estimate_end_time;
+      const orderList = orders[index];
+      console.log("999", orderList);
+      const testTime = orderList.estimate_end_time;
 
       let imageStatus = null;
-      if (order.status == "Waiting") {
+      if (orderList.status == "Waiting") {
         imageStatus = "/images/Icon/in-the-kitchen.png";
       }
-      if (order.status == "Order Place") {
+      if (orderList.status == "Order Place") {
         imageStatus = "/images/Icon/order-placed.png";
       }
-      if (order.status == "Serving") {
+      if (orderList.status == "Serving") {
         imageStatus = "/images/Icon/serving.png";
       }
 
@@ -195,10 +152,10 @@ async function getData() {
   );
   const result = await response.json();
 
-  const res1 = result.data[0];
-
+  const res1 = result.data[1];
+  console.log("rest2", res1);
   dataList = res1.room_or_tables;
-
+  console.log("datalist_rest2", dataList);
   textMessage = res1.remark;
 
   getSlideList = res1.slides;
@@ -220,4 +177,4 @@ getData();
 
 setInterval(() => {
   window.location.href = "index.html?page=" + (page + 1);
-}, 1000 * 60);
+}, 1000 * 600); /* 60 */
