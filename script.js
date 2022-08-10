@@ -52,7 +52,7 @@ function showStatus() {
       const testTime = orderList.estimate_end_time;
 
       let imageStatus = null;
-      if (orderList.status == "Waiting") {
+      if (orderList.status == "In the kitchen") {
         imageStatus = "/images/Icon/in-the-kitchen.png";
       }
       if (orderList.status == "Order Place") {
@@ -177,4 +177,4 @@ getData();
 
 setInterval(() => {
   window.location.href = "index.html?page=" + (page + 1);
-}, 1000 * 600); /* 60 */
+}, 1000 * 60);
